@@ -45,7 +45,11 @@ app = dash.Dash(__name__)
 
 # Fetching stock symbols and their names
 symbols_data = pd.DataFrame({'symbol': symbols})
+<<<<<<< HEAD
+symbols_data['name'] = symbols_data['symbol'].apply(lambda symbol: yf.Ticker(symbol).info.get('longName', symbol)) #return longname of symbol otherwise return symbol
+=======
 symbols_data['name'] = symbols_data['symbol'].apply(lambda symbol: yf.Ticker(symbol).info.get('longName', symbol))
+>>>>>>> 1432ec4a235b7b8a6d9ca655f388b30c347ef5e4
 symbols = symbols_data.set_index('symbol').to_dict()['name']
 
 app.layout = html.Div(style={'textAlign': 'center'}, children=[
@@ -86,8 +90,12 @@ def update_output(value):
 
     # Creating a figure
     figure = go.Figure(
-        data=[go.Scatter(x=data.index, y=data['adjusted_close'], mode='lines')],
-        layout=go.Layout(title=symbols[value], xaxis=dict(title='Date'), yaxis=dict(title='Adjusted Close'))
+        data=[
+            go.Scatter(x=data.index, y=data['open'], mode='lines', name='Open'),
+            go.Scatter(x=data.index, y=data['high'], mode='lines', name='High'),
+            go.Scatter(x=data.index, y=data['low'], mode='lines', name='Low'),
+            go.Scatter(x=data.index, y=data['close'], mode='lines', name='Close')],
+        layout=go.Layout(title=symbols[value], xaxis=dict(title='Date'), yaxis=dict(title='Price'))
     )
 
     # Creating a quote table
@@ -113,11 +121,11 @@ def update_output(value):
 
     # Displaying news titles
     if len(news_titles) > 0:
-        news_list = html.Ul([html.Li(title) for title in news_titles])
+        news_list = [html.Li(title, style={'margin-bottom': '10px', 'padding': '5px', 'border': '1px solid #ccc', 'border-radius': '5px'}) for title in news_titles]
         return figure, quote_table, news_list
     else:
         return figure, quote_table, html.P('No news found for the specified symbol.')
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
